@@ -22,15 +22,15 @@ const Home = () => {
                         Premium Fabrics for<br /><span>Exceptional Tailoring</span>
                     </h1>
                     <p className="animate-in animate-delay-1">
-                        Discover curated collections of the finest shirting and suiting fabrics
+                        Discover curated collections of the finest shirting and shuting fabrics
                         from world-renowned brands. Quality that speaks for itself.
                     </p>
                     <div className="hero-actions animate-in animate-delay-2">
                         <Link to="/products?category=Shirting" className="btn btn-primary btn-lg">
                             Shop Shirting <FiArrowRight />
                         </Link>
-                        <Link to="/products?category=Suiting" className="btn btn-outline btn-lg" style={{ borderColor: 'rgba(255,255,255,0.3)', color: '#fff' }}>
-                            Shop Suiting
+                        <Link to="/products?category=Shuting" className="btn btn-outline btn-lg" style={{ borderColor: 'rgba(255,255,255,0.3)', color: '#fff' }}>
+                            Shop Shuting
                         </Link>
                     </div>
                 </div>
@@ -61,16 +61,16 @@ const Home = () => {
                     </div>
                     <div className="category-grid">
                         <Link to="/products?category=Shirting" className="category-card">
-                            <img src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=600" alt="Shirting Fabrics" />
+                            <img src="assets/linen-pic/frontshirt.jpg" alt="Shirting Fabrics" />
                             <div className="category-card-overlay">
                                 <h3>Shirting</h3>
                                 <p>Cotton, Linen, Silk & more for premium shirts</p>
                             </div>
                         </Link>
-                        <Link to="/products?category=Suiting" className="category-card">
-                            <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600" alt="Suiting Fabrics" />
+                        <Link to="/products?category=Shuting" className="category-card">
+                            <img src="assets/linen-pic/frontpant.jpg" alt="Shuting Fabrics" />
                             <div className="category-card-overlay">
-                                <h3>Suiting</h3>
+                                <h3>Shuting</h3>
                                 <p>Wool, Polyester & Blends for bespoke suits</p>
                             </div>
                         </Link>

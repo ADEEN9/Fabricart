@@ -43,17 +43,33 @@ const ProductDetail = () => {
 
                 <div className="product-detail animate-in">
                     <div className="product-detail-image">
-                        <img src={imageList[activeImage]} alt={product.name} />
+                        <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 'var(--radius-lg)', height: 500 }}>
+                            <img
+                                key={activeImage}
+                                src={imageList[activeImage]}
+                                alt={product.name}
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover',
+                                    animation: 'fadeIn 0.5s ease-in-out'
+                                }}
+                            />
+                        </div>
                         {imageList.length > 1 && (
                             <div className="product-thumbnails">
                                 {imageList.map((img, idx) => (
-                                    <img
+                                    <div
                                         key={idx}
-                                        src={img}
-                                        alt={`${product.name} ${idx + 1}`}
-                                        className={`product-thumbnail ${idx === activeImage ? 'active' : ''}`}
+                                        className={`product-thumbnail-wrapper ${idx === activeImage ? 'active' : ''}`}
                                         onClick={() => setActiveImage(idx)}
-                                    />
+                                    >
+                                        <img
+                                            src={img}
+                                            alt={`${product.name} ${idx + 1}`}
+                                            className="product-thumbnail"
+                                        />
+                                    </div>
                                 ))}
                             </div>
                         )}

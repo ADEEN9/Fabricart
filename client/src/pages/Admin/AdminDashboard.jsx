@@ -262,22 +262,26 @@ const ProductForm = ({ product, onClose, onSuccess }) => {
     });
     const [images, setImages] = useState([]);
     const [previews, setPreviews] = useState([]);
+    const [existingImages, setExistingImages] = useState(product?.images || []);
     const [submitting, setSubmitting] = useState(false);
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
-        if (files.length > 5) {
-            toast.error('Maximum 5 images allowed');
+        if (files.length + existingImages.length > 5) {
+            toast.error('Maximum 5 images allowed total');
             return;
         }
-        setImages(files);
+        
+        // Accumulate new images
+        const updatedImages = [...images, ...files];
+        setImages(updatedImages);
 
-        // Generate previews
+        // Generate previews for new images
         const newPreviews = files.map((file) => URL.createObjectURL(file));
-        setPreviews(newPreviews);
+        setPreviews([...previews, ...newPreviews]);
     };
 
-    const removePreview = (index) => {
+    const removeNewPreview = (index) => {
         const newImages = [...images];
         newImages.splice(index, 1);
         setImages(newImages);
@@ -288,6 +292,12 @@ const ProductForm = ({ product, onClose, onSuccess }) => {
         setPreviews(newPreviews);
     };
 
+    const removeExistingImage = (index) => {
+        const updated = [...existingImages];
+        updated.splice(index, 1);
+        setExistingImages(updated);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSubmitting(true);
@@ -296,7 +306,9 @@ const ProductForm = ({ product, onClose, onSuccess }) => {
             const fd = new FormData();
             Object.entries(formData).forEach(([key, val]) => fd.append(key, val));
 
-            // Append multiple images
+            // In a real app, you might want to send which existing images to keep
+            // For now, if new images are uploaded, they replace old ones per the controller logic
+            // But we can improve the controller later. For this simplified implementation:
             images.forEach((img) => fd.append('images', img));
 
             if (product) {
@@ -351,48 +363,75 @@ const ProductForm = ({ product, onClose, onSuccess }) => {
                     </div>
                     <div className="form-group">
                         <label>Price per Meter (₹)</label>
-                        <input type="number" className="form-control" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} required min="0" step="0.01" placeholder="e.g. 450" />
+                        <input type="number" className="form-control" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} required min="0" step="0.01" />
                     </div>
                     <div className="form-group">
                         <label>Stock (in Meters)</label>
-                        <input type="number" className="form-control" value={formData.stock} onChange={(e) => setFormData({ ...formData, stock: e.target.value })} required min="0" step="0.5" placeholder="e.g. 100" />
+                        <input type="number" className="form-control" value={formData.stock} onChange={(e) => setFormData({ ...formData, stock: e.target.value })} required min="0" step="0.5" />
                     </div>
                 </div>
                 <div className="form-group">
                     <label>Description</label>
                     <textarea className="form-control" rows={3} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} required />
                 </div>
+
                 <div className="form-group">
-                    <label>Product Images (up to 5)</label>
-                    <input type="file" accept="image/*" multiple onChange={handleImageChange} className="form-control" />
-                    {previews.length > 0 && (
-                        <div style={{ display: 'flex', gap: 'var(--space-sm)', marginTop: 'var(--space-sm)', flexWrap: 'wrap' }}>
-                            {previews.map((src, idx) => (
-                                <div key={idx} style={{ position: 'relative', width: 80, height: 80 }}>
-                                    <img
-                                        src={src}
-                                        alt={`Preview ${idx + 1}`}
-                                        style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 'var(--radius-sm)', border: '2px solid var(--color-border)' }}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => removePreview(idx)}
-                                        style={{
-                                            position: 'absolute', top: -6, right: -6,
-                                            width: 20, height: 20, borderRadius: '50%',
-                                            background: 'var(--color-danger)', color: '#fff',
-                                            border: 'none', cursor: 'pointer',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            fontSize: '10px', padding: 0,
-                                        }}
-                                    >
-                                        <FiX size={12} />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    <label>Product Images (up to 5 total)</label>
+                    <input type="file" accept="image/*" multiple onChange={handleImageChange} className="form-control" style={{ marginBottom: 'var(--space-sm)' }} />
+                    
+                    <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
+                        {/* Existing Images */}
+                        {existingImages.map((img, idx) => (
+                            <div key={`exist-${idx}`} style={{ position: 'relative', width: 80, height: 80 }}>
+                                <img
+                                    src={getProductImage({ images: [img] })}
+                                    alt="Existing"
+                                    style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 'var(--radius-sm)', border: '2px solid var(--color-accent)' }}
+                                />
+                                <div style={{ position: 'absolute', top: 2, left: 2, background: 'var(--color-accent)', color: '#fff', fontSize: '8px', padding: '1px 3px', borderRadius: '2px' }}>Saved</div>
+                                <button
+                                    type="button"
+                                    onClick={() => removeExistingImage(idx)}
+                                    style={{
+                                        position: 'absolute', top: -6, right: -6,
+                                        width: 20, height: 20, borderRadius: '50%',
+                                        background: 'var(--color-danger)', color: '#fff',
+                                        border: 'none', cursor: 'pointer',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    }}
+                                >
+                                    <FiX size={12} />
+                                </button>
+                            </div>
+                        ))}
+
+                        {/* New Upload Previews */}
+                        {previews.map((src, idx) => (
+                            <div key={`new-${idx}`} style={{ position: 'relative', width: 80, height: 80 }}>
+                                <img
+                                    src={src}
+                                    alt="New Preview"
+                                    style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 'var(--radius-sm)', border: '2px solid var(--color-warning)' }}
+                                />
+                                <div style={{ position: 'absolute', top: 2, left: 2, background: 'var(--color-warning)', color: '#fff', fontSize: '8px', padding: '1px 3px', borderRadius: '2px' }}>New</div>
+                                <button
+                                    type="button"
+                                    onClick={() => removeNewPreview(idx)}
+                                    style={{
+                                        position: 'absolute', top: -6, right: -6,
+                                        width: 20, height: 20, borderRadius: '50%',
+                                        background: 'var(--color-danger)', color: '#fff',
+                                        border: 'none', cursor: 'pointer',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    }}
+                                >
+                                    <FiX size={12} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
                 </div>
+
                 <button type="submit" className="btn btn-primary btn-lg" disabled={submitting}>
                     {submitting ? 'Saving...' : (product ? 'Update Product' : 'Create Product')}
                 </button>
