@@ -38,6 +38,7 @@ const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:5174',
     'http://localhost:5175',
+    'https://fabricart.vercel.app',
 ];
 if (process.env.CLIENT_URL) allowedOrigins.push(process.env.CLIENT_URL);
 
